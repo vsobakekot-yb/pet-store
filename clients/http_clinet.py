@@ -24,6 +24,17 @@ class HttpRequestClient:
         return response
 
 
+    def delete(self, endpoint: str, params=None):
+        url = self._build_url(endpoint)
+
+        response = self.session.delete(
+            url,
+            timeout=self.timeout,
+            params=params
+        )
+        return response
+
+
     def post(self, endpoint: str, json: dict) -> Response:
         url = self._build_url(endpoint)
 
