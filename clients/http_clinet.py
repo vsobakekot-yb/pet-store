@@ -1,4 +1,5 @@
 import requests
+import resource
 from requests import Response
 
 
@@ -45,6 +46,16 @@ class HttpRequestClient:
         )
         return response
 
+
+    def put(self, endpoint: str, json:dict) -> Response:
+        url = self._build_url(endpoint)
+
+        response = self.session.put(
+            url=url,
+            json=json,
+            timeout=self.timeout
+        )
+        return response
 
     def close(self):
         self.session.close()

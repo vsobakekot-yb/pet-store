@@ -25,3 +25,9 @@ class PetClient:
             f'pet/{pet_id}'
         )
 
+    def update_pet(self, payload:dict) -> Response:
+        return self._client.put(
+            'pet',
+            payload
+        )
+
