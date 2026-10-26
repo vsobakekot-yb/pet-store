@@ -8,8 +8,12 @@ class HttpRequestClient:
         self.timeout = timeout
         self.session = requests.Session()
 
+    def _build_url(self, endpoint):
+        return self.base_url.rstrip('/') + '/' + endpoint.lstrip('/')
+
+
     def get(self, endpoint: str, params=None) -> Response:
-        url = self.base_url.rstrip('/') + '/' + endpoint.lstrip('/')
+        url = self._build_url(endpoint)
 
         response = self.session.get(
             url,
@@ -18,6 +22,18 @@ class HttpRequestClient:
         )
 
         return response
+
+
+    def post(self, endpoint: str, json: dict) -> Response:
+        url = self._build_url(endpoint)
+
+        response = self.session.post(
+            url=url,
+            json=json,
+            timeout=self.timeout
+        )
+        return response
+
 
     def close(self):
         self.session.close()
