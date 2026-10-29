@@ -42,5 +42,25 @@ def test_delete_nonexistent_pet(pet_client):
     assert pet_client.get_pet(uid).status_code == 404
 
 
+def test_change_pet_name(pet_client, created_pet):
+    pet = created_pet
+
+    response = pet_client.get_pet(pet['id'])
+    assert response.status_code == 200
+
+    pet['name'], pet['status'] = 'Max', 'sold'
+
+    response = pet_client.update_pet(pet)
+    assert response.status_code == 200
+
+    updated_pet = response.json()
+    assert updated_pet['name'] == 'Max'
+    assert updated_pet['status'] == 'sold'
+
+    response = pet_client.get_pet(pet['id'])
+
+    result = response.json()
+    assert result['name'] == 'Max'
+    assert result['status'] == 'sold'
 
 

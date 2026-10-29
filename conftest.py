@@ -26,7 +26,7 @@ def created_pet(pet_client):
     id = secrets.randbelow(2 ** 63 - 1) + 1
     payload = {
         "id": id,
-        "name": "doggie",
+        "name": "Buddy",
         "category": {
             "id": 1,
             "name": "Dogs"
