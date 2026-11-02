@@ -6,19 +6,18 @@ from pydantic import ValidationError
 
 from models.pet_model import Pet
 
-def test_find_by_status(http_client):
+@pytest.mark.parametrize('status', ['available', 'sold', 'pending'])
+def test_find_by_status(pet_client, status):
 
-    response = http_client.get(
-        '/pet/findByStatus',
-        {'status': 'available'}
-    )
+    response = pet_client.find_by_status(status)
+
+    assert response.status_code == 200
 
     pets = response.json()
-    assert response.status_code == 200
     assert isinstance(pets, list)
 
     for pet in pets:
-        assert pet['status'] == 'available'
+        assert pet['status'] == status
 
 
 def test_created_pet_can_be_retrieved(pet_client, created_pet):

@@ -25,6 +25,12 @@ class PetClient:
             f'pet/{pet_id}'
         )
 
+    def find_by_status(self, status: str) -> Response:
+        return self._client.get(
+            f'pet/findByStatus',
+            params={'status': status}
+        )
+
     def update_pet(self, payload:dict) -> Response:
         return self._client.put(
             'pet',
