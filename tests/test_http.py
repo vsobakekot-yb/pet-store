@@ -1,5 +1,9 @@
 import secrets
 
+import pytest
+from pydantic import ValidationError
+
+from models.pet_model import Pet
 
 def test_find_by_status(http_client):
 
@@ -63,4 +67,27 @@ def test_change_pet_name(pet_client, created_pet):
     assert result['name'] == 'Max'
     assert result['status'] == 'sold'
 
+
+def test_incorrect_pet():
+    payload = {
+        "id": "wrong_id",
+        "name": "Buddy",
+        "status": "available",
+        "photoUrls": []
+    }
+    with pytest.raises(ValidationError):
+        Pet(**payload)
+
+
+def test_create_and_validate_pet(pet_client,created_pet):
+    pet = created_pet
+
+    response = pet_client.get_pet(pet['id'])
+    assert  response.status_code == 200
+
+    actual_pet = Pet(**response.json())
+
+    assert actual_pet.id == pet['id']
+    assert actual_pet.name == pet['name']
+    assert actual_pet.status == pet['status']
 

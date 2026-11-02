@@ -42,7 +42,7 @@ def created_pet(pet_client):
         ],
         "status": "available"
     }
-    response =pet_client.create_pet(
+    response = pet_client.create_pet(
         payload
     )
     assert response.status_code == 200
