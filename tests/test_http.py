@@ -1,6 +1,7 @@
 import secrets
 
 import pytest
+import resource
 from pydantic import ValidationError
 
 from models.pet_model import Pet
@@ -90,4 +91,27 @@ def test_create_and_validate_pet(pet_client,created_pet):
     assert actual_pet.id == pet['id']
     assert actual_pet.name == pet['name']
     assert actual_pet.status == pet['status']
+
+
+@pytest.mark.parametrize('status', ['available', 'sold', 'pending'])
+def test_different_statuses(status, pet_client, created_pet):
+    pet = created_pet
+
+    response = pet_client.get_pet(pet['id'])
+    assert response.status_code == 200
+
+    pet['status'] = status
+    response = pet_client.update_pet(pet)
+    assert response.status_code == 200
+
+    response = pet_client.get_pet(pet['id'])
+    assert response.status_code == 200
+
+    updated_pet = Pet.model_validate(response.json())
+
+    assert updated_pet.status == status
+    assert updated_pet.name == pet['name']
+    assert updated_pet.id == pet['id']
+
+
 

@@ -50,3 +50,5 @@ def created_pet(pet_client):
 
     response = pet_client.delete_pet(id)
     assert response.status_code == 200
+
+    assert pet_client.get_pet(id).status_code != 200
