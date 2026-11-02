@@ -114,4 +114,10 @@ def test_different_statuses(status, pet_client, created_pet):
     assert updated_pet.id == pet['id']
 
 
+def test_get_non_existent_pet(pet_client):
+    response = pet_client.get_pet(secrets.randbelow(2 ** 63 - 1) + 1)
+    assert response.status_code == 404
+
+
+
 
