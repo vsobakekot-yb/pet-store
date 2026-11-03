@@ -3,20 +3,16 @@ from unittest.mock import Mock
 import pytest
 import requests
 
-from clients.http_clinet import HttpRequestClient
 
-
-def test_get_forwards_arguments_to_session(monkeypatch):
+def test_get_forwards_arguments_to_session(offline_http_client,monkeypatch):
     mock_get = Mock()
 
-    base_url = 'https://example.com/'
     endpoint = '/users'
     query_params = {'status': 'active'}
 
-    client = HttpRequestClient(base_url=base_url, timeout=5)
-    monkeypatch.setattr(client.session, 'get', mock_get)
+    monkeypatch.setattr(offline_http_client.session, 'get', mock_get)
 
-    client.get(endpoint=endpoint, params=query_params)
+    offline_http_client.get(endpoint=endpoint, params=query_params)
 
     mock_get.assert_called_once_with(
         'https://example.com/users',
@@ -24,20 +20,16 @@ def test_get_forwards_arguments_to_session(monkeypatch):
         params=query_params,
     )
 
-    client.close()
 
-
-def test_post_forwards_arguments_to_session(monkeypatch):
+def test_post_forwards_arguments_to_session(offline_http_client,monkeypatch):
     mock_post = Mock()
 
-    base_url = 'https://example.com/'
     _json = {"test": 'message'}
     endpoint = '/pet'
 
-    client = HttpRequestClient(base_url=base_url, timeout=5)
-    monkeypatch.setattr(client.session, 'post', mock_post)
+    monkeypatch.setattr(offline_http_client.session, 'post', mock_post)
 
-    client.post(endpoint=endpoint,json=_json)
+    offline_http_client.post(endpoint=endpoint,json=_json)
 
     mock_post.assert_called_once_with(
         url='https://example.com/pet',
@@ -45,45 +37,37 @@ def test_post_forwards_arguments_to_session(monkeypatch):
         timeout=5
     )
 
-    client.close()
-
-
-def test_network_error(monkeypatch):
+def test_network_error(offline_http_client, monkeypatch):
     mock_get = Mock(side_effect=requests.Timeout)
 
-    base_url = 'https://example.com/'
     endpoint = '/users'
     query_params = {'status': 'active'}
 
-    client = HttpRequestClient(base_url, timeout=1000)
-    monkeypatch.setattr(client.session, 'get', mock_get)
+    monkeypatch.setattr(offline_http_client.session, 'get', mock_get)
 
     with pytest.raises(requests.Timeout):
-        client.get(endpoint, params=query_params)
+        offline_http_client.get(endpoint, params=query_params)
 
     mock_get.assert_called_once_with(
         'https://example.com/users',
-        timeout=1000,
+        timeout=5,
         params=query_params,
     )
-    client.close()
 
 
-def test_503_error_from_get(monkeypatch):
+def test_503_error_from_get(offline_http_client, monkeypatch):
     expected_response = requests.Response()
     expected_response.status_code = 503
 
     mock = Mock(return_value=expected_response)
 
 
-    base_url = 'https://example.com/'
     endpoint = '/users'
     query_params = {'status': 'active'}
 
-    client = HttpRequestClient(base_url, timeout=5)
-    monkeypatch.setattr(client.session, 'get',  mock)
+    monkeypatch.setattr(offline_http_client.session, 'get',  mock)
 
-    actual_response = client.get(endpoint, query_params)
+    actual_response = offline_http_client.get(endpoint, query_params)
 
     mock.assert_called_once_with(
         'https://example.com/users',
@@ -92,8 +76,5 @@ def test_503_error_from_get(monkeypatch):
     )
     assert actual_response is expected_response
     assert actual_response.status_code == 503
-
-
-    client.close()
 
 

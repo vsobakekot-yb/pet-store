@@ -16,6 +16,16 @@ def http_client():
 
 
 @pytest.fixture(scope='function')
+def offline_http_client():
+    client = HttpRequestClient(
+        'https://example.com/',
+        timeout=5
+    )
+    yield client
+    client.close()
+
+
+@pytest.fixture(scope='function')
 def pet_client(http_client):
     return PetClient(http_client)
 
