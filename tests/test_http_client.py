@@ -68,3 +68,32 @@ def test_network_error(monkeypatch):
     )
     client.close()
 
+
+def test_503_error_from_get(monkeypatch):
+    expected_response = requests.Response()
+    expected_response.status_code = 503
+
+    mock = Mock(return_value=expected_response)
+
+
+    base_url = 'https://example.com/'
+    endpoint = '/users'
+    query_params = {'status': 'active'}
+
+    client = HttpRequestClient(base_url, timeout=5)
+    monkeypatch.setattr(client.session, 'get',  mock)
+
+    actual_response = client.get(endpoint, query_params)
+
+    mock.assert_called_once_with(
+        'https://example.com/users',
+        timeout=5,
+        params=query_params
+    )
+    assert actual_response is expected_response
+    assert actual_response.status_code == 503
+
+
+    client.close()
+
+
