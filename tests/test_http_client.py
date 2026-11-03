@@ -37,6 +37,45 @@ def test_post_forwards_arguments_to_session(offline_http_client,monkeypatch):
         timeout=5
     )
 
+
+def test_delete_forwards_arguments_to_session(offline_http_client, monkeypatch):
+    expected_response = requests.Response()
+
+    mock_delete = Mock(return_value=expected_response)
+    endpoint = '/pet'
+    params = {'some': 'params'}
+
+    monkeypatch.setattr(offline_http_client.session, 'delete', mock_delete)
+
+    actual_response = offline_http_client.delete(endpoint=endpoint, params=params)
+
+    mock_delete.assert_called_once_with(
+        'https://example.com/pet',
+        timeout=5,
+        params=params
+    )
+    assert expected_response is actual_response
+
+
+def test_put_forwards_arguments_to_session(offline_http_client, monkeypatch):
+    expected_response = requests.Response()
+
+    mock_put = Mock(return_value=expected_response)
+    endpoint = '/pet'
+    payload = {'test': 'update'}
+
+    monkeypatch.setattr(offline_http_client.session, 'put', mock_put)
+
+    actual_response = offline_http_client.put(endpoint, payload)
+
+    mock_put.assert_called_once_with(
+        url='https://example.com/pet',
+        json=payload,
+        timeout=5
+
+    )
+    assert actual_response is expected_response
+
 def test_network_error(offline_http_client, monkeypatch):
     mock_get = Mock(side_effect=requests.Timeout)
 
