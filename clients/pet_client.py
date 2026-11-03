@@ -31,6 +31,7 @@ class PetClient:
             params={'status': status}
         )
 
+
     def update_pet(self, payload:dict) -> Response:
         return self._client.put(
             'pet',

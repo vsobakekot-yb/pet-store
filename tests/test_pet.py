@@ -2,8 +2,12 @@ import secrets
 
 import pytest
 import resource
-from pydantic import ValidationError
 
+import requests
+from pydantic import ValidationError
+from requests import Response
+
+from clients.http_clinet import HttpRequestClient
 from models.pet_model import Pet
 
 @pytest.mark.parametrize('status', ['available', 'sold', 'pending'])
@@ -130,6 +134,37 @@ def test_different_statuses(status, pet_client, created_pet):
 def test_get_non_existent_pet(pet_client):
     response = pet_client.get_pet(secrets.randbelow(2 ** 63 - 1) + 1)
     assert response.status_code == 404
+
+
+def test_get_response_mock(monkeypatch):
+    def mock_session_get(session, url, timeout, params=None, **kwargs):
+        response = Response()
+        response.status_code = 200
+
+        response._mocked_url = url
+        response._mocked_timeout = timeout
+        response._mocked_params = params
+
+        return response
+
+
+    monkeypatch.setattr(requests.Session, 'get', mock_session_get)
+    base_url = 'https://example.com/'
+    client = HttpRequestClient(base_url=base_url, timeout=5)
+
+    endpoint = '/users'
+    query_params = {'status': 'active'}
+    response = client.get(endpoint=endpoint, params=query_params)
+
+    assert response._mocked_url == 'https://example.com/users'
+    assert response._mocked_params == {'status': 'active'}
+    assert response._mocked_timeout == 5
+
+    client.close()
+
+
+
+
 
 
 
