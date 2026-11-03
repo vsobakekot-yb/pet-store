@@ -1,5 +1,8 @@
 from unittest.mock import Mock
 
+import pytest
+import requests
+
 from clients.http_clinet import HttpRequestClient
 
 
@@ -44,4 +47,24 @@ def test_post_forwards_arguments_to_session(monkeypatch):
 
     client.close()
 
+
+def test_network_error(monkeypatch):
+    mock_get = Mock(side_effect=requests.Timeout)
+
+    base_url = 'https://example.com/'
+    endpoint = '/users'
+    query_params = {'status': 'active'}
+
+    client = HttpRequestClient(base_url, timeout=1000)
+    monkeypatch.setattr(client.session, 'get', mock_get)
+
+    with pytest.raises(requests.Timeout):
+        client.get(endpoint, params=query_params)
+
+    mock_get.assert_called_once_with(
+        'https://example.com/users',
+        timeout=1000,
+        params=query_params,
+    )
+    client.close()
 
