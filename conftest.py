@@ -25,6 +25,7 @@ def offline_http_client():
     client.close()
 
 
+
 @pytest.fixture(scope='function')
 def pet_client(http_client):
     return PetClient(http_client)
