@@ -18,6 +18,26 @@ def test_pet_creation():
     assert pet.tags[0].id == payload['tags'][0]['id']
 
 
+def test_pet_creation_without_category_and_tags():
+    payload = make_pet_payload(1)
+    payload.pop('category')
+    payload.pop('tags')
+
+    pet = Pet(**payload)
+    assert pet.category is None
+    assert pet.tags is None
+
+
+def test_category_has_wrong_type():
+    payload = make_pet_payload(1)
+    payload['category'] = [{'id': 12,'name': 'Dogs'}]
+
+    with pytest.raises(ValidationError) as err:
+        Pet(**payload)
+
+    assert err.value.errors()[0]['loc'] == ('category',)
+
+
 def test_incorrect_nested_key():
     payload = make_pet_payload(10)
     payload['category']['id'] = '1'
