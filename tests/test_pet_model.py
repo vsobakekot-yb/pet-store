@@ -14,6 +14,17 @@ def test_pet_creation():
     assert pet.name == payload['name']
     assert pet.status == payload['status']
     assert pet.photoUrls == payload['photoUrls']
+    assert pet.category.id == payload['category']['id']
+    assert pet.tags[0].id == payload['tags'][0]['id']
+
+
+def test_incorrect_nested_key():
+    payload = make_pet_payload(10)
+    payload['category']['id'] = '1'
+
+    with pytest.raises(ValidationError) as err:
+        Pet(**payload)
+    assert err.value.errors()[0]['loc'] == ('category', 'id')
 
 
 @pytest.mark.parametrize(

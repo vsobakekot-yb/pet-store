@@ -23,5 +23,5 @@ class Pet(BaseModel):
     name: str
     status: Literal['available', 'pending', 'sold']
     photoUrls: list[str]
-    tags: list[Tags]
-    category: list[Category]
+    tags: list[Tags] | None = None
+    category: Category | None = None
