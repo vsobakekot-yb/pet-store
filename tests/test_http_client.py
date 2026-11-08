@@ -117,3 +117,8 @@ def test_503_error_from_get(offline_http_client, monkeypatch):
     assert actual_response.status_code == 503
 
 
+def test_env_for_http_client(monkeypatch, request):
+    monkeypatch.setenv('PETSTORE_BASE_URL', 'https://test.example.com')
+    client = request.getfixturevalue('http_client')
+
+    assert client.base_url == 'https://test.example.com'

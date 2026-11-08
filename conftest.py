@@ -1,5 +1,9 @@
-import pytest
+import os
 import secrets
+
+from dotenv import load_dotenv
+
+import pytest
 
 from clients.http_clinet import HttpRequestClient
 from clients.pet_client import PetClient
@@ -8,8 +12,11 @@ from tests.pet_data import make_pet_payload
 
 @pytest.fixture(scope="function")
 def http_client():
+    load_dotenv()
+    base_url = os.getenv('PETSTORE_BASE_URL', 'https://petstore3.swagger.io/api/v3')
+
     client = HttpRequestClient(
-        'https://petstore3.swagger.io/api/v3',
+        base_url,
         timeout=10
     )
     yield client
