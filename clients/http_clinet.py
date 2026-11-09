@@ -1,6 +1,7 @@
 import requests
-import resource
 from requests import Response
+
+from types import TracebackType
 
 
 class HttpRequestClient:
@@ -8,6 +9,11 @@ class HttpRequestClient:
         self.base_url = base_url
         self.timeout = timeout
         self.session = requests.Session()
+
+
+    def __enter__(self):
+        return self
+
 
     def _build_url(self, endpoint):
         return self.base_url.rstrip('/') + '/' + endpoint.lstrip('/')
@@ -60,3 +66,7 @@ class HttpRequestClient:
 
     def close(self):
         self.session.close()
+
+
+    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> None:
+        self.close()

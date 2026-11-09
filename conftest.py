@@ -15,22 +15,14 @@ def http_client():
     load_dotenv()
     base_url = os.getenv('PETSTORE_BASE_URL', 'https://petstore3.swagger.io/api/v3')
 
-    client = HttpRequestClient(
-        base_url,
-        timeout=10
-    )
-    yield client
-    client.close()
+    with HttpRequestClient(base_url=base_url, timeout=10) as client:
+        yield client
 
 
 @pytest.fixture(scope='function')
 def offline_http_client():
-    client = HttpRequestClient(
-        'https://example.com/',
-        timeout=5
-    )
-    yield client
-    client.close()
+    with HttpRequestClient(base_url='https://example.com/', timeout=5) as client:
+        yield client
 
 
 @pytest.fixture(scope='function')

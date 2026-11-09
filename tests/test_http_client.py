@@ -3,6 +3,8 @@ from unittest.mock import Mock
 import pytest
 import requests
 
+from clients.http_clinet import HttpRequestClient
+
 
 def test_get_forwards_arguments_to_session(offline_http_client,monkeypatch):
     mock_get = Mock()
@@ -76,6 +78,7 @@ def test_put_forwards_arguments_to_session(offline_http_client, monkeypatch):
     )
     assert actual_response is expected_response
 
+
 def test_network_error(offline_http_client, monkeypatch):
     mock_get = Mock(side_effect=requests.Timeout)
 
@@ -122,3 +125,36 @@ def test_env_for_http_client(monkeypatch, request):
     client = request.getfixturevalue('http_client')
 
     assert client.base_url == 'https://test.example.com'
+
+
+def test_enter_returns_same_object():
+    client = HttpRequestClient('https://petstore3.swagger.io/api/v3', timeout=10)
+
+    with client as cli:
+        assert cli is client
+
+
+def test_session_close_called_once(monkeypatch):
+    cli = HttpRequestClient('https://petstore3.swagger.io/api/v3', timeout=10)
+    mock = Mock()
+    monkeypatch.setattr(cli.session, 'close', mock)
+
+    with cli:
+        pass
+
+    mock.assert_called_once_with()
+
+
+def test_exit_calls_during_the_exception(monkeypatch):
+    cli = HttpRequestClient('https://petstore3.swagger.io/api/v3', timeout=10)
+    mock = Mock()
+
+    monkeypatch.setattr(cli.session, 'close', mock)
+    expected_error = requests.HTTPError('Expected error')
+
+    with pytest.raises(requests.HTTPError) as exc:
+        with cli:
+            raise expected_error
+
+    mock.assert_called_once_with()
+    assert exc.value is expected_error
