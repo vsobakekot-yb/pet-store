@@ -15,53 +15,30 @@ class HttpRequestClient:
         return self
 
 
+    def _request(self, method: str, endpoint: str, **kwargs) -> Response:
+        kwargs.setdefault('timeout', self.timeout)
+
+        return self.session.request(method, self._build_url(endpoint), **kwargs)
+
+
     def _build_url(self, endpoint):
         return self.base_url.rstrip('/') + '/' + endpoint.lstrip('/')
 
 
     def get(self, endpoint: str, params=None) -> Response:
-        url = self._build_url(endpoint)
-
-        response = self.session.get(
-            url,
-            timeout=self.timeout,
-            params=params
-        )
-
-        return response
+        return self._request('GET', endpoint, params=params)
 
 
     def delete(self, endpoint: str, params=None):
-        url = self._build_url(endpoint)
-
-        response = self.session.delete(
-            url,
-            timeout=self.timeout,
-            params=params
-        )
-        return response
+        return self._request('DELETE', endpoint, params=params)
 
 
     def post(self, endpoint: str, json: dict) -> Response:
-        url = self._build_url(endpoint)
-
-        response = self.session.post(
-            url=url,
-            json=json,
-            timeout=self.timeout
-        )
-        return response
+        return self._request('POST', endpoint, json=json)
 
 
     def put(self, endpoint: str, json:dict) -> Response:
-        url = self._build_url(endpoint)
-
-        response = self.session.put(
-            url=url,
-            json=json,
-            timeout=self.timeout
-        )
-        return response
+        return self._request('PUT', endpoint, json=json)
 
 
     def close(self):
