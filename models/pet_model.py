@@ -1,6 +1,7 @@
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
 
 class Tags(BaseModel):
     model_config = ConfigDict(strict=True)
@@ -17,11 +18,15 @@ class Category(BaseModel):
 
 
 class Pet(BaseModel):
-    model_config = ConfigDict(strict=True)
+    model_config = ConfigDict(
+        strict=True,
+        validate_by_name=True,
+        validate_by_alias=True
+    )
 
     id: int
     name: str
     status: Literal['available', 'pending', 'sold']
-    photoUrls: list[str]
+    photo_urls: list[str] = Field(alias='photoUrls')
     tags: list[Tags] | None = None
     category: Category | None = None

@@ -13,7 +13,7 @@ def test_pet_creation():
     assert pet.id == payload['id']
     assert pet.name == payload['name']
     assert pet.status == payload['status']
-    assert pet.photoUrls == payload['photoUrls']
+    assert pet.photo_urls == payload['photoUrls']
     assert pet.category.id == payload['category']['id']
     assert pet.tags[0].id == payload['tags'][0]['id']
 
@@ -71,3 +71,24 @@ def test_incorrect_pet(pet_id,name,status, photoUrls,remove_urls,expected_field)
     assert (expected_field,) in [
         error['loc'] for error in exc_info.value.errors()
     ]
+
+
+def test_photo_urls():
+    payload = make_pet_payload(1)
+
+    pet = Pet(**payload)
+
+    assert pet.photo_urls == payload['photoUrls']
+
+
+def test_dumping_pet_model():
+    payload = make_pet_payload(1)
+    payload['photo_urls'] = payload.pop('photoUrls')
+
+    pet = Pet(**payload)
+
+    dump = pet.model_dump(by_alias=True)
+
+    assert 'photoUrls' in dump
+    assert 'photo_urls' not in dump
+    assert dump['photoUrls'] == payload['photo_urls']
