@@ -4,7 +4,6 @@ import secrets
 from dotenv import load_dotenv
 
 import pytest
-from pydantic import BaseModel
 
 from clients.http_clinet import HttpRequestClient
 from clients.pet_client import PetClient

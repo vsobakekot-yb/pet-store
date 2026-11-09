@@ -4,6 +4,8 @@ import pytest
 import requests
 
 from clients.pet_client import PetClient
+from models.pet_model import Pet
+from tests.pet_data import make_pet_payload
 
 
 @pytest.fixture(scope='function')
@@ -32,7 +34,10 @@ def test_find_by_status_offline():
     pet_client = PetClient(http_client)
 
     actual_response = pet_client.find_by_status('available')
-    http_client.get.assert_called_once_with('pet/findByStatus',params={'status':'available'})
+    http_client.get.assert_called_once_with(
+        'pet/findByStatus',
+        params={'status': 'available'}
+    )
     assert actual_response is expected_response
 
 
@@ -41,26 +46,30 @@ def test_create_pet_offline():
     http_client = Mock()
     http_client.post.return_value = expected_response
 
+    payload = make_pet_payload(1)
+    pet = Pet.model_validate(payload)
+
     pet_client = PetClient(http_client)
-    payload = {'test': 'value'}
 
     actual_response = pet_client.create_pet(
-        payload
+        pet
     )
     http_client.post.assert_called_once_with('pet', payload)
     assert actual_response is expected_response
 
 
-def test_put_offline():
+def test_update_pet_offline():
     expected_response = requests.Response()
     http_client = Mock()
     http_client.put.return_value = expected_response
 
+    payload = make_pet_payload(1)
+    pet = Pet.model_validate(payload)
+
     pet_client = PetClient(http_client)
-    payload = {'test': 'value'}
 
     actual_response = pet_client.update_pet(
-        payload
+        pet
     )
     http_client.put.assert_called_once_with('pet', payload)
     assert actual_response is expected_response
@@ -78,7 +87,7 @@ def test_delete_pet_offline():
     assert actual_response is expected_response
 
 
-def test_created_pet_offline(http_client,request):
+def test_created_pet_offline(http_client, request):
     response = Mock()
     response.status_code = 200
     response.json.return_value = {'id': -1}
