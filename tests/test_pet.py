@@ -27,7 +27,7 @@ def test_created_pet_can_be_retrieved(pet_client, created_pet):
 
     actual_pet = Pet.model_validate(response.json())
     assert actual_pet.id == expected_pet.id
-    assert actual_pet.id == expected_pet.name
+    assert actual_pet.name == expected_pet.name
 
 
 def test_delete_nonexistent_pet(pet_client):

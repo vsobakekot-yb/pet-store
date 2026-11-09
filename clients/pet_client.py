@@ -35,7 +35,8 @@ class PetClient:
         )
 
 
-    def update_pet(self, payload:dict) -> Response:
+    def update_pet(self, pet:Pet) -> Response:
+        payload = pet.model_dump(by_alias=True)
         return self._client.put(
             'pet',
             payload
