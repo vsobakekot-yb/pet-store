@@ -93,15 +93,11 @@ def test_created_pet_offline(http_client, request):
     response.json.return_value = {'id': -1}
     http_client.post.return_value = response
 
-    http_client.delete.return_value = Mock(status_code=200)
-    http_client.get.return_value = Mock(status_code=404)
-
     with pytest.raises(AssertionError):
         request.getfixturevalue('created_pet')
 
-    payload = http_client.post.call_args.args[1]
-    http_client.delete.assert_called_once_with(f'pet/{payload['id']}')
-    http_client.get.assert_called_once_with(f'pet/{payload['id']}')
+    http_client.delete.assert_not_called()
+    http_client.get.assert_not_called()
 
 
 

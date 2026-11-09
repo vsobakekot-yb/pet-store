@@ -7,14 +7,16 @@ from clients.http_clinet import HttpRequestClient
 
 
 def test_get_forwards_arguments_to_session(offline_http_client,monkeypatch):
-    mock_get = Mock()
+    expected_response = requests.Response()
+
+    mock_get = Mock(return_value=expected_response)
 
     endpoint = '/users'
     query_params = {'status': 'active'}
 
     monkeypatch.setattr(offline_http_client.session, 'request', mock_get)
 
-    offline_http_client.get(endpoint=endpoint, params=query_params)
+    actual_response = offline_http_client.get(endpoint=endpoint, params=query_params)
 
     mock_get.assert_called_once_with(
         "GET",
@@ -22,17 +24,20 @@ def test_get_forwards_arguments_to_session(offline_http_client,monkeypatch):
         params=query_params,
         timeout=5,
     )
-
+    assert expected_response is actual_response
 
 def test_post_forwards_arguments_to_session(offline_http_client,monkeypatch):
-    mock_post = Mock()
+    expected_response = requests.Response()
+
+    mock_post = Mock(return_value=expected_response)
 
     payload = {"test": 'message'}
     endpoint = '/pet'
 
     monkeypatch.setattr(offline_http_client.session, 'request', mock_post)
 
-    offline_http_client.post(endpoint=endpoint,json=payload)
+    actual_response = offline_http_client.post(endpoint=endpoint, json=payload)
+
 
     mock_post.assert_called_once_with(
         "POST",
@@ -40,6 +45,7 @@ def test_post_forwards_arguments_to_session(offline_http_client,monkeypatch):
         json=payload,
         timeout=5,
     )
+    assert expected_response is actual_response
 
 
 def test_delete_forwards_arguments_to_session(offline_http_client, monkeypatch):

@@ -37,13 +37,13 @@ def created_pet(pet_client):
     payload = make_pet_payload(pet_id)
     pet = Pet.model_validate(payload)
 
-    try:
-        response = pet_client.create_pet(
-            pet
-        )
-        assert response.status_code == 200
-        assert response.json()['id'] == pet_id
+    response = pet_client.create_pet(
+        pet
+    )
+    assert response.status_code == 200
+    assert response.json()['id'] == pet_id
 
+    try:
         yield pet
     finally:
         response = pet_client.delete_pet(pet_id)
