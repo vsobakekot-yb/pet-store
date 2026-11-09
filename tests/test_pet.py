@@ -15,18 +15,19 @@ def test_find_by_status(pet_client, status):
     assert isinstance(pets, list)
 
     for pet in pets:
-        assert pet['status'] == status
+        pet = Pet.model_validate(pet)
+        assert pet.status == status
 
 
 def test_created_pet_can_be_retrieved(pet_client, created_pet):
     expected_pet = created_pet
 
-    response = pet_client.get_pet(expected_pet['id'])
+    response = pet_client.get_pet(expected_pet.id)
     assert response.status_code == 200
 
-    actual_pet = response.json()
-    assert actual_pet['id'] == expected_pet['id']
-    assert actual_pet['name'] == expected_pet['name']
+    actual_pet = Pet.model_validate(response.json())
+    assert actual_pet.id == expected_pet.id
+    assert actual_pet.id == expected_pet.name
 
 
 def test_delete_nonexistent_pet(pet_client):
@@ -47,57 +48,57 @@ def test_delete_nonexistent_pet(pet_client):
 def test_change_pet_name(pet_client, created_pet):
     pet = created_pet
 
-    response = pet_client.get_pet(pet['id'])
+    response = pet_client.get_pet(pet.id)
     assert response.status_code == 200
 
-    pet['name'], pet['status'] = 'Max', 'sold'
+    pet.name, pet.status = 'Max', 'sold'
 
     response = pet_client.update_pet(pet)
     assert response.status_code == 200
 
-    updated_pet = response.json()
-    assert updated_pet['name'] == 'Max'
-    assert updated_pet['status'] == 'sold'
+    updated_pet = Pet.model_validate(response.json())
+    assert updated_pet.name == 'Max'
+    assert updated_pet.status == 'sold'
 
-    response = pet_client.get_pet(pet['id'])
+    response = pet_client.get_pet(pet.id)
 
-    result = response.json()
-    assert result['name'] == 'Max'
-    assert result['status'] == 'sold'
+    result = Pet.model_validate(response.json())
+    assert result.name == 'Max'
+    assert result.status == 'sold'
 
 
 def test_create_and_validate_pet(pet_client,created_pet):
     pet = created_pet
 
-    response = pet_client.get_pet(pet['id'])
+    response = pet_client.get_pet(pet.id)
     assert  response.status_code == 200
 
-    actual_pet = Pet(**response.json())
+    actual_pet = Pet.model_validate(response.json())
 
-    assert actual_pet.id == pet['id']
-    assert actual_pet.name == pet['name']
-    assert actual_pet.status == pet['status']
+    assert actual_pet.id == pet.id
+    assert actual_pet.name == pet.name
+    assert actual_pet.status == pet.status
 
 
 @pytest.mark.parametrize('status', ['available', 'sold', 'pending'])
 def test_different_statuses(status, pet_client, created_pet):
     pet = created_pet
 
-    response = pet_client.get_pet(pet['id'])
+    response = pet_client.get_pet(pet.id)
     assert response.status_code == 200
 
-    pet['status'] = status
+    pet.status = status
     response = pet_client.update_pet(pet)
     assert response.status_code == 200
 
-    response = pet_client.get_pet(pet['id'])
+    response = pet_client.get_pet(pet.id)
     assert response.status_code == 200
 
     updated_pet = Pet.model_validate(response.json())
 
     assert updated_pet.status == status
-    assert updated_pet.name == pet['name']
-    assert updated_pet.id == pet['id']
+    assert updated_pet.name == pet.name
+    assert updated_pet.id == pet.id
 
 
 def test_get_non_existent_pet(pet_client):

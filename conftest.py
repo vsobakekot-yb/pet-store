@@ -4,9 +4,11 @@ import secrets
 from dotenv import load_dotenv
 
 import pytest
+from pydantic import BaseModel
 
 from clients.http_clinet import HttpRequestClient
 from clients.pet_client import PetClient
+from models.pet_model import Pet
 from tests.pet_data import make_pet_payload
 
 
@@ -34,15 +36,16 @@ def pet_client(http_client):
 def created_pet(pet_client):
     pet_id = secrets.randbelow(2 ** 63 - 1) + 1
     payload = make_pet_payload(pet_id)
+    pet = Pet.model_validate(payload)
 
     try:
         response = pet_client.create_pet(
-            payload
+            pet
         )
         assert response.status_code == 200
         assert response.json()['id'] == pet_id
 
-        yield payload
+        yield pet
     finally:
         response = pet_client.delete_pet(pet_id)
         assert response.status_code == 200

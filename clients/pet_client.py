@@ -1,6 +1,8 @@
+from pydantic import BaseModel
 from requests import Response
 
 from clients.http_clinet import HttpRequestClient
+from models.pet_model import Pet
 
 
 class PetClient:
@@ -8,7 +10,8 @@ class PetClient:
         self._client = client
 
 
-    def create_pet(self,payload: dict) -> Response:
+    def create_pet(self,pet: Pet) -> Response:
+        payload = pet.model_dump(by_alias=True)
         return self._client.post(
             'pet',
             payload
